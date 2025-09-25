@@ -1,4 +1,5 @@
-﻿using Library.Application.Interfaces;
+﻿using Library.Application.Helpers.MappingProfiles;
+using Library.Application.Interfaces;
 using Library.Application.Services;
 using Library.Domain.Interfaces;
 using Library.Infrastructure.Repositories;
@@ -23,5 +24,15 @@ public static class ServiceExtensions
         services.AddScoped<IGenreService, GenreService>();
         services.AddScoped<ILoanService, LoanService>();
         services.AddScoped<IMemberService, MemberService>();
+        
+        //AutoMapper
+        
+        services.AddAutoMapper(typeof(AuthorProfile),
+            typeof(BookProfile),
+            typeof(GenreProfile),
+            typeof(LoanProfile),
+            typeof(MemberProfile),
+            typeof(BookDetailProfile),
+            typeof(LoanToBookDtoProfile));
     }
 }

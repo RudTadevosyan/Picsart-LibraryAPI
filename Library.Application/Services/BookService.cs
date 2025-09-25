@@ -1,4 +1,4 @@
-﻿using Library.Application.Helpers;
+﻿using AutoMapper;
 using Library.Application.Interfaces;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
@@ -13,46 +13,32 @@ public class BookService: IBookService
     private readonly IBookRepository _bookRepository;
     private readonly IBookDetailRepository _bookDetailRepository;
     private readonly IGenreRepository _genreRepository;
+    private readonly IMapper _mapper;
 
     public BookService(IBookRepository bookRepository, IBookDetailRepository bookDetailRepository, 
-        IGenreRepository genreRepository)
+        IGenreRepository genreRepository, IMapper mapper)
     {
         _bookRepository = bookRepository;
         _bookDetailRepository = bookDetailRepository;
         _genreRepository = genreRepository;
+        _mapper = mapper;
     }
 
     public async Task<BookDto?> GetBookById(int id)
     {
         var book = await _bookRepository.GetBookById(id);
-        return book.ToDto();
+        return _mapper.Map<BookDto?>(book);
     }
 
-    public async Task<IEnumerable<BookDto?>> GetAllBooks()
+    public async Task<IEnumerable<BookDto>> GetAllBooks()
     {
         var books = await _bookRepository.GetAllBooks();
-        return books.Select(b => b.ToDto());
+        return _mapper.Map<IEnumerable<BookDto>>(books);
     }
 
     public async Task<BookDto?> AddBook(CreateBookModel bookModel)
     {
-        Book book = new Book
-        {
-            BookTitle = bookModel.BookTitle,
-            BookPublishDate = bookModel.BookPublishDate,
-            AuthorId = bookModel.AuthorId,
-            Genres = new HashSet<Genre>(),
-        };
-
-        if (bookModel.BookDetail != null)
-        {
-            book.BookDetail = new BookDetail
-            {
-                BookPages = bookModel.BookDetail.BookPages,
-                BookLanguage = bookModel.BookDetail.BookLanguage,
-                BookDescription = bookModel.BookDetail.BookDescription,
-            };
-        }
+        var book = _mapper.Map<Book>(bookModel);
 
         if (bookModel.Genres != null)
         {
@@ -62,10 +48,12 @@ public class BookService: IBookService
                 if(genre != null) book.Genres.Add(genre);
             }
         }
+        //add Page check
 
         await _bookRepository.AddBook(book);
         await _bookRepository.Save();
-        return book.ToDto();
+        
+        return _mapper.Map<BookDto?>(book);
     }
 
     public async Task<bool> UpdateBook(int id, UpdateBookModel bookModel)
@@ -73,12 +61,8 @@ public class BookService: IBookService
         var existing = await _bookRepository.GetBookById(id);
         if(existing == null) return false;
 
-        if(!string.IsNullOrWhiteSpace(bookModel.BookTitle))
-            existing.BookTitle = bookModel.BookTitle;
-        
-        existing.BookPublishDate = bookModel.BookPublishDate;
-        existing.AuthorId = bookModel.AuthorId; 
-
+        _mapper.Map(bookModel, existing);
+        //add Page check
         await _bookRepository.UpdateBook(existing);
         await _bookRepository.Save();
         return true;
@@ -129,19 +113,14 @@ public class BookService: IBookService
         var book = await _bookRepository.GetBookById(bookId);
         if (book == null) return null;
 
-        BookDetail bd = new BookDetail
-        {
-            BookPages = bookDetailModel.BookPages,
-            BookLanguage = bookDetailModel.BookLanguage,
-            BookDescription = bookDetailModel.BookDescription,
-            BookId = bookId,
-        };
+        var bd = _mapper.Map<BookDetail>(bookDetailModel);
 
         book.BookDetail = bd;
 
         await _bookDetailRepository.AddBookDetail(bd);
         await _bookDetailRepository.Save();
-        return bd.ToDto();
+        
+        return _mapper.Map<BookDetailDto?>(bd);
     }
 
     public async Task<bool> UpdateBookDetail(UpdateBookDetailModel bookDetailModel)
@@ -149,12 +128,7 @@ public class BookService: IBookService
         var bd = await _bookDetailRepository.GetBookDetailById(bookDetailModel.BookId);
         if (bd == null) return false; 
 
-        if(!string.IsNullOrWhiteSpace(bookDetailModel.BookLanguage))
-            bd.BookLanguage = bookDetailModel.BookLanguage;
-        if(!string.IsNullOrWhiteSpace(bookDetailModel.BookDescription))
-            bd.BookDescription = bookDetailModel.BookDescription;
-        if(bookDetailModel.BookPages > 0)
-            bd.BookPages = bookDetailModel.BookPages;
+        _mapper.Map(bookDetailModel, bd);
 
         await _bookDetailRepository.UpdateBookDetail(bd);
         await _bookDetailRepository.Save();

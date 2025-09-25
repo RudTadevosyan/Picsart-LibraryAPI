@@ -1,4 +1,4 @@
-﻿using Library.Application.Helpers;
+﻿using AutoMapper;
 using Library.Application.Interfaces;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
@@ -11,22 +11,23 @@ namespace Library.Application.Services;
 public class GenreService : IGenreService
 {
     private readonly IGenreRepository _repository;
-
-    public GenreService(IGenreRepository repository)
+    private readonly IMapper _mapper;
+    public GenreService(IGenreRepository repository, IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
     public async Task<GenreDto?> GetGenreById(int id)
     {
         var genre = await _repository.GetGenreById(id);
-        return genre.ToDto();
+        return _mapper.Map<GenreDto?>(genre);
     }
 
-    public async Task<IEnumerable<GenreDto?>> GetAllGenres()
+    public async Task<IEnumerable<GenreDto>> GetAllGenres()
     {
         var genres = await _repository.GetAllGenres();
-        return genres.Select(g => g.ToDto());
+        return _mapper.Map<IEnumerable<GenreDto>>(genres);
     }
 
     public async Task<GenreDto?> AddGenre(CreateGenreModel genreModel)
@@ -38,7 +39,7 @@ public class GenreService : IGenreService
 
         await _repository.AddGenre(genre);
         await _repository.Save();
-        return genre.ToDto();
+        return _mapper.Map<GenreDto?>(genre);
     }
 
     public async Task<bool> UpdateGenre(int id, UpdateGenreModel genreModel)

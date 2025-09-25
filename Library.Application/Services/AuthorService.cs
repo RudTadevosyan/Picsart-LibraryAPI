@@ -1,4 +1,4 @@
-﻿using Library.Application.Helpers;
+﻿using AutoMapper;
 using Library.Application.Interfaces;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
@@ -11,40 +11,39 @@ namespace Library.Application.Services;
 public class AuthorService : IAuthorService
 {
     private readonly IAuthorRepository _repository;
+    private readonly IMapper _mapper;
 
-    public AuthorService(IAuthorRepository authorRepository)
+    public AuthorService(IAuthorRepository authorRepository, IMapper mapper)
     {
         _repository = authorRepository;
+        _mapper = mapper;
     }
 
     public async Task<AuthorDto?> GetAuthorById(int id)
     {
         var author = await _repository.GetAuthorById(id);
-        return author.ToDto();
+        return _mapper.Map<AuthorDto?>(author);
     }
 
-    public async Task<IEnumerable<AuthorDto?>> GetAllAuthors()
+    public async Task<IEnumerable<AuthorDto>> GetAllAuthors()
     {
         var authors = await _repository.GetAllAuthors();
-        return authors.Select(a => a.ToDto());
+        return _mapper.Map<IEnumerable<AuthorDto>>(authors);
     }
 
-    public async Task<IEnumerable<AuthorDto?>> GetAllAuthorsByName(string name)
+    public async Task<IEnumerable<AuthorDto>> GetAllAuthorsByName(string name)
     {
         var authors = await _repository.GetAllAuthorsByName(name);
-        return authors.Select(a => a.ToDto());
+        return _mapper.Map<IEnumerable<AuthorDto>>(authors);
     }
     public async Task<AuthorDto?> AddAuthor(CreateAuthorModel authorModel)
     {
-        Author author = new Author
-        {
-            AuthorName = authorModel.AuthorName,
-            AuthorEmail = authorModel.AuthorEmail,
-        };
+        var author = _mapper.Map<Author>(authorModel);
 
         await _repository.AddAuthor(author);
         await _repository.Save();
-        return author.ToDto();
+        
+        return _mapper.Map<AuthorDto?>(author);
     }
 
     public async Task<bool> UpdateAuthor(int id, UpdateAuthorModel authorModel)
@@ -52,11 +51,7 @@ public class AuthorService : IAuthorService
         var existing = await _repository.GetAuthorById(id);
         if(existing == null) return false;
 
-        if (!string.IsNullOrWhiteSpace(authorModel.AuthorName))
-            existing.AuthorName = authorModel.AuthorName;
-        
-        if(!string.IsNullOrWhiteSpace(authorModel.AuthorEmail))
-            existing.AuthorEmail = authorModel.AuthorEmail;
+        _mapper.Map(authorModel, existing);
         
         await _repository.UpdateAuthor(existing);
         await _repository.Save();

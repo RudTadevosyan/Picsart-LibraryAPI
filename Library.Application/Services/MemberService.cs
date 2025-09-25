@@ -1,4 +1,5 @@
-﻿using Library.Application.Helpers;
+﻿using AutoMapper;
+using Library.Application.Helpers;
 using Library.Application.Interfaces;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
@@ -11,35 +12,33 @@ namespace Library.Application.Services;
 public class MemberService : IMemberService
 {
     private readonly IMemberRepository _repository;
-
-    public MemberService(IMemberRepository repository)
+    private readonly IMapper _mapper;
+    public MemberService(IMemberRepository repository, IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
     public async Task<MemberDto?> GetMemberById(int id)
     {
         var member = await _repository.GetMemberById(id);
-        return member.ToDto();
+        return _mapper.Map<MemberDto>(member);
     }
 
-    public async Task<IEnumerable<MemberDto?>> GetAllMembers()
+    public async Task<IEnumerable<MemberDto>> GetAllMembers()
     {
         var members = await _repository.GetAllMembers();
-        return members.Select(m => m.ToDto());
+        return _mapper.Map<IEnumerable<MemberDto>>(members);
     }
 
     public async Task<MemberDto?> AddMember(CreateMemberModel memberModel)
     {
-        var member = new Member
-        {
-            MemberName = memberModel.MemberName,
-            MemberEmail = memberModel.MemberEmail
-        };
+        var member = _mapper.Map<Member>(memberModel);
 
         await _repository.AddMember(member);
         await _repository.Save();
-        return member.ToDto();
+        
+        return _mapper.Map<MemberDto>(member);
     }
 
     public async Task<bool> UpdateMember(int id, UpdateMemberModel updateModel)
@@ -47,11 +46,7 @@ public class MemberService : IMemberService
         var existing = await _repository.GetMemberById(id);
         if (existing == null) return false;
 
-        if (!string.IsNullOrWhiteSpace(updateModel.MemberName))
-            existing.MemberName = updateModel.MemberName;
-
-        if (!string.IsNullOrWhiteSpace(updateModel.MemberEmail))
-            existing.MemberEmail = updateModel.MemberEmail;
+        _mapper.Map(updateModel, existing);
 
         await _repository.UpdateMember(existing);
         await _repository.Save();

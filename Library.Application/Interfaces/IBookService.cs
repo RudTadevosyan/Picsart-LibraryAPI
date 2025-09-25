@@ -7,7 +7,7 @@ namespace Library.Application.Interfaces;
 public interface IBookService
 {
     Task<BookDto?> GetBookById(int id);
-    Task<IEnumerable<BookDto?>> GetAllBooks();
+    Task<IEnumerable<BookDto>> GetAllBooks();
     Task<BookDto?> AddBook(CreateBookModel bookModel);
     Task<bool> UpdateBook(int id, UpdateBookModel bookModel);
     Task<bool> DeleteBook(int id);

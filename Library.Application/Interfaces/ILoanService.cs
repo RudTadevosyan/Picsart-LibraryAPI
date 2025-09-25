@@ -7,7 +7,7 @@ namespace Library.Application.Interfaces
     public interface ILoanService
     {
         Task<LoanDto?> GetLoanById(int id);
-        Task<IEnumerable<LoanDto?>> GetAllLoans();
+        Task<IEnumerable<LoanDto>> GetAllLoans();
         Task<LoanDto?> AddLoan(CreateLoanModel loanModel);
         Task<bool> UpdateLoan(int id, UpdateLoanModel loanModel);
         Task<bool> DeleteLoan(int id);
