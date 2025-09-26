@@ -4,19 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Repositories;
 
-public class AuthorRepository : IAuthorRepository
+public class AuthorRepository : BaseRepository<Author>, IAuthorRepository
 {
-    private readonly LibraryDbContext _context;
-
-    public AuthorRepository(LibraryDbContext context)
-    {
-        _context = context;
-    }
+    public AuthorRepository(LibraryDbContext context) : base(context){}
 
     public async Task<Author?> GetAuthorById(int id)
     {
         return await _context.Authors
-            .Include(a => a.Books)!
+            .Include(a => a.Books)
             .ThenInclude(b => b.BookDetail)
             .Include(a => a.Books)
             .ThenInclude(b => b.Genres)
@@ -28,7 +23,7 @@ public class AuthorRepository : IAuthorRepository
     public async Task<IEnumerable<Author>> GetAllAuthors()
     {
         return await _context.Authors
-            .Include(a => a.Books)!
+            .Include(a => a.Books)
             .ThenInclude(b => b.BookDetail)
             .Include(a => a.Books)
             .ThenInclude(b => b.Genres)
@@ -41,7 +36,7 @@ public class AuthorRepository : IAuthorRepository
     {
         return await _context.Authors
             .Where(a => a.AuthorName.StartsWith(name))
-            .Include(a => a.Books)!
+            .Include(a => a.Books)
             .ThenInclude(b => b.BookDetail)
             .Include(a => a.Books)
             .ThenInclude(b => b.Genres)
@@ -55,19 +50,16 @@ public class AuthorRepository : IAuthorRepository
         await _context.Authors.AddAsync(author);
     }
 
-    public Task<bool> UpdateAuthor(Author author)
+    public Task UpdateAuthor(Author author)
     {
         _context.Authors.Update(author);
         return Task.FromResult(true);
     }
 
-    public async Task<bool> DeleteAuthor(int id)
+    public Task DeleteAuthor(Author author)
     {
-        var author = await _context.Authors.FindAsync(id);
-        if (author == null) return false;
-
         _context.Authors.Remove(author);
-        return true;
+        return Task.CompletedTask;
     }
 
     public async Task<bool> AuthorHasBooks(int authorId)
@@ -75,8 +67,4 @@ public class AuthorRepository : IAuthorRepository
         return await _context.Books.AnyAsync(b => b.AuthorId == authorId);
     }
 
-    public async Task Save()
-    {
-        await _context.SaveChangesAsync();
-    }
 }

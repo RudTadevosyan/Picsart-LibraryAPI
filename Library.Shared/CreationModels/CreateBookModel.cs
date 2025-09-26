@@ -10,5 +10,5 @@ public class CreateBookModel
     
     //not required 
     public CreateBookDetailModel? BookDetail { get; set; }
-    public ICollection<GenreDto>? Genres { get; set; } //idk
+    public ICollection<GenreDto> Genres { get; set; } = new List<GenreDto>();
 }

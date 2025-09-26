@@ -7,7 +7,7 @@ public class BookDto
     public DateTime BookPublishDate { get; set; }
     
     public int AuthorId { get; set; }
-    public ICollection<GenreDto>? Genres { get; set; } 
+    public ICollection<GenreDto> Genres { get; set; } = new List<GenreDto>();
     public BookDetailDto? BookDetail { get; set; }
     
     public int? LoanId { get; set; }

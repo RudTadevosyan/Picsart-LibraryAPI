@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Repositories;
 
-public class BookDetailRepository : IBookDetailRepository
+public class BookDetailRepository : BaseRepository<BookDetail> ,IBookDetailRepository
 {
-    private readonly LibraryDbContext _context;
-
-    public BookDetailRepository(LibraryDbContext context)
-    {
-        _context = context;
-    }
+    public BookDetailRepository(LibraryDbContext context) : base (context) {}
 
     public async Task<BookDetail?> GetBookDetailById(int id)
     {
@@ -34,23 +29,15 @@ public class BookDetailRepository : IBookDetailRepository
         await _context.BookDetails.AddAsync(bookDetail);
     }
 
-    public Task<bool> UpdateBookDetail(BookDetail bookDetail)
+    public Task UpdateBookDetail(BookDetail bookDetail)
     {
         _context.BookDetails.Update(bookDetail);
-        return Task.FromResult(true);
+        return Task.CompletedTask;
     }
 
-    public async Task<bool> DeleteBookDetail(int id)
+    public Task DeleteBookDetail(BookDetail bookDetail)
     {
-        var detail = await _context.BookDetails.FindAsync(id);
-        if (detail == null) return false;
-
-        _context.BookDetails.Remove(detail);
-        return true;
-    }
-
-    public async Task Save()
-    {
-        await _context.SaveChangesAsync();
+        _context.BookDetails.Remove(bookDetail);
+        return Task.CompletedTask;
     }
 }

@@ -26,8 +26,6 @@ public class GenresController: ControllerBase
     public async Task<IActionResult> GetGenreById(int id)
     {
         var genre = await _service.GetGenreById(id);
-        if(genre == null)
-            return NotFound("Genre not found");
         return Ok(genre);
     }
 
@@ -38,8 +36,6 @@ public class GenresController: ControllerBase
             return BadRequest(ModelState);
         
         var genre = await _service.AddGenre(genreModel);
-        if(genre == null)
-            return NotFound("Genre not found");
         return Ok(genre);
     }
 
@@ -49,20 +45,15 @@ public class GenresController: ControllerBase
         if(!ModelState.IsValid)
             return BadRequest(ModelState);
         
-        var updated = await _service.UpdateGenre(id, genreModel);
-        if(!updated)
-            return BadRequest("Could not update genre");
-        
-        return NoContent();
+        await _service.UpdateGenre(id, genreModel);
+        return Ok();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteGenre(int id)
     {
-        var deleted = await _service.DeleteGenre(id);
-        if(!deleted)
-            return BadRequest("Could not delete genre");
-        return NoContent();
+        await _service.DeleteGenre(id);
+        return Ok();
     }
     
 }

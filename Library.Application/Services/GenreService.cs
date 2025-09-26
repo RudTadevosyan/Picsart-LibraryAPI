@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Library.Application.Interfaces;
+using Library.Domain.CustomExceptions;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
 using Library.Shared.CreationModels;
@@ -18,10 +19,12 @@ public class GenreService : IGenreService
         _mapper = mapper;
     }
 
-    public async Task<GenreDto?> GetGenreById(int id)
+    public async Task<GenreDto> GetGenreById(int id)
     {
-        var genre = await _repository.GetGenreById(id);
-        return _mapper.Map<GenreDto?>(genre);
+        var genre = await _repository.GetGenreById(id) ??
+                    throw new NotFoundException("Genre not found");
+        
+        return _mapper.Map<GenreDto>(genre);
     }
 
     public async Task<IEnumerable<GenreDto>> GetAllGenres()
@@ -30,38 +33,34 @@ public class GenreService : IGenreService
         return _mapper.Map<IEnumerable<GenreDto>>(genres);
     }
 
-    public async Task<GenreDto?> AddGenre(CreateGenreModel genreModel)
+    public async Task<GenreDto> AddGenre(CreateGenreModel genreModel)
     {
-        Genre genre = new Genre
-        {
-            GenreName = genreModel.GenreName,
-        };
+        Genre genre = _mapper.Map<Genre>(genreModel);
 
         await _repository.AddGenre(genre);
-        await _repository.Save();
-        return _mapper.Map<GenreDto?>(genre);
+        await _repository.SaveChanges();
+        
+        return _mapper.Map<GenreDto>(genre);
     }
 
-    public async Task<bool> UpdateGenre(int id, UpdateGenreModel genreModel)
+    public async Task UpdateGenre(int id, UpdateGenreModel genreModel)
     {
-        var existing = await _repository.GetGenreById(id);
-        if(existing == null) return false;
-
+        var existing = await _repository.GetGenreById(id) ??
+                       throw new NotFoundException("Genre not found");
+        
         if(!string.IsNullOrWhiteSpace(genreModel.GenreName))
             existing.GenreName = genreModel.GenreName;
 
         await _repository.UpdateGenre(existing);
-        await _repository.Save();
-        return true;
+        await _repository.SaveChanges();
     }
 
-    public async Task<bool> DeleteGenre(int id)
+    public async Task DeleteGenre(int id)
     {
-        var existing = await _repository.GetGenreById(id);
-        if(existing == null) return false;
+        var genre = await _repository.GetGenreById(id) ?? 
+                       throw new NotFoundException("Genre not found");
 
-        await _repository.DeleteGenreById(id);
-        await _repository.Save();
-        return true;
+        await _repository.DeleteGenreById(genre);
+        await _repository.SaveChanges();
     }
 }

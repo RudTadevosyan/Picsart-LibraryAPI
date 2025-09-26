@@ -27,9 +27,6 @@ public class BooksController: ControllerBase
     public async Task<IActionResult> GetBookById(int id)
     {
         var book = await _service.GetBookById(id);
-        if(book == null)
-            return NotFound("Book not found");
-        
         return Ok(book);
     }
 
@@ -40,9 +37,6 @@ public class BooksController: ControllerBase
             return BadRequest(ModelState);
         
         var book = await _service.AddBook(bookModel);
-        if(book == null)
-            return BadRequest("Could not add book");
-        
         return Ok(book);
     }
 
@@ -52,40 +46,29 @@ public class BooksController: ControllerBase
         if(!ModelState.IsValid) 
             return BadRequest(ModelState);
         
-        var updated = await _service.UpdateBook(id, bookModel);
-        if(!updated)
-            return BadRequest("Could not update book");
-
-        return NoContent();
+        await _service.UpdateBook(id, bookModel);
+        return Ok();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteBook(int id)
     {
-        var deleted = await _service.DeleteBook(id);
-        if(!deleted)
-            return BadRequest("Could not delete book");
-        
-        return NoContent();
+        await _service.DeleteBook(id);
+        return Ok();
     }
 
     [HttpPost("{bookId:int}/genre/{genreId:int}")]
     public async Task<IActionResult> AddGenreToBook(int bookId, int genreId)
     {
-        var result = await _service.AddGenreToBook(bookId, genreId);
-        if(!result)
-            return BadRequest("Could not add genre");
-        
-        return NoContent();
+        await _service.AddGenreToBook(bookId, genreId);
+        return Ok();
     }
 
     [HttpDelete("{bookId:int}/genre/{genreId:int}")]
     public async Task<IActionResult> DeleteGenreFromBook(int bookId, int genreId)
     {
-        var result = await _service.DeleteGenreFromBook(bookId, genreId);
-        if(!result)
-            return BadRequest("Could not delete genre");
-        return NoContent();
+        await _service.DeleteGenreFromBook(bookId, genreId);
+        return Ok();
     }
 
     [HttpGet("availability/{id:int}")]
@@ -102,9 +85,6 @@ public class BooksController: ControllerBase
             return BadRequest(ModelState);
         
         var detail = await _service.AddBookDetail(bookId, bookDetailModel);
-        if(detail == null)
-            return BadRequest("Could not add book details");
-        
         return Ok(detail);
     }
 
@@ -114,19 +94,14 @@ public class BooksController: ControllerBase
         if(!ModelState.IsValid)
             return BadRequest(ModelState);
         
-        var updated = await _service.UpdateBookDetail(bookDetailModel);
-        if(!updated)
-            return BadRequest("Could not update book details");
-        
-        return NoContent();
+        await _service.UpdateBookDetail(bookDetailModel);
+        return Ok();
     }
 
     [HttpDelete("details/{detailId:int}")]
     public async Task<IActionResult> DeleteBookDetails(int detailId)
     {
-        var deleted = await _service.DeleteBookDetail(detailId);
-        if(!deleted)
-            return BadRequest("Could not delete book details");
-        return NoContent();
+        await _service.DeleteBookDetail(detailId);
+        return Ok();
     }
 }

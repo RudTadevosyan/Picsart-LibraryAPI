@@ -1,5 +1,6 @@
 using Library.Infrastructure;
 using LibraryAPI.Extensions;
+using LibraryAPI.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryAPI;
@@ -17,6 +18,7 @@ public class Program
         
         //DI
         builder.Services.AddLibraryDependencies();
+
         
         // Add services to the container.
         builder.Services.AddControllers();
@@ -32,6 +34,7 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseHttpsRedirection();
         app.UseAuthorization();
 

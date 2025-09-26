@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Repositories;
 
-public class GenreRepository : IGenreRepository
+public class GenreRepository : BaseRepository<Genre>,IGenreRepository
 {
-    private readonly LibraryDbContext _context;
-
-    public GenreRepository(LibraryDbContext context)
-    {
-        _context = context;
-    }
+    public GenreRepository(LibraryDbContext context) : base(context) {}
 
     public async Task<Genre?> GetGenreById(int id)
     {
@@ -33,23 +28,15 @@ public class GenreRepository : IGenreRepository
         await _context.Genres.AddAsync(genre);
     }
 
-    public Task<bool> UpdateGenre(Genre genre)
+    public Task UpdateGenre(Genre genre)
     {
         _context.Genres.Update(genre);
-        return Task.FromResult(true);
+        return Task.CompletedTask;
     }
 
-    public async Task<bool> DeleteGenreById(int id)
+    public Task DeleteGenreById(Genre genre)
     {
-        var genre = await _context.Genres.FindAsync(id);
-        if (genre == null) return false;
-
         _context.Genres.Remove(genre);
-        return true;
-    }
-
-    public async Task Save()
-    {
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 }

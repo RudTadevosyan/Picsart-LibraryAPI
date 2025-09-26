@@ -2,12 +2,11 @@
 
 namespace Library.Domain.Interfaces;
 
-public interface ILoanRepository
+public interface ILoanRepository : IRepository<Loan>
 {
     Task<Loan?> GetLoanById(int id);
     Task<IEnumerable<Loan>> GetAllLoans();
     Task AddLoan(Loan loan);
-    Task<bool> UpdateLoan(Loan loan);
-    Task<bool> DeleteLoan(int id);
-    Task Save();
+    Task UpdateLoan(Loan loan);
+    Task DeleteLoan(Loan loan);
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Library.Application.Interfaces;
+using Library.Domain.CustomExceptions;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
 using Library.Shared.CreationModels;
@@ -23,9 +24,11 @@ public class LoanService : ILoanService
         _mapper = mapper;
     }
 
-    public async Task<LoanDto?> GetLoanById(int id)
+    public async Task<LoanDto> GetLoanById(int id)
     {
-        var loan = await _loanRepository.GetLoanById(id);
+        var loan = await _loanRepository.GetLoanById(id) ??
+                   throw new NotFoundException("Loan not found");
+        
         return _mapper.Map<LoanDto>(loan);
     }
 
@@ -35,67 +38,65 @@ public class LoanService : ILoanService
         return _mapper.Map<IEnumerable<LoanDto>>(loans);
     }
 
-    public async Task<LoanDto?> AddLoan(CreateLoanModel loanModel)
+    public async Task<LoanDto> AddLoan(CreateLoanModel loanModel)
     {
-        var book = await _bookRepository.GetBookById(loanModel.BookId) ??
-                   throw new ArgumentException($"Book with id {loanModel.BookId} does not exist");
+        if(!await _bookRepository.CheckId(loanModel.BookId))
+                throw new NotFoundException($"Book with id {loanModel.BookId} does not exist");
 
-        var member = await _memberRepository.GetMemberById(loanModel.MemberId) ?? 
-                     throw new ArgumentException($"Member with id {loanModel.MemberId} does not exist");
-        
+        if(!await _memberRepository.CheckId(loanModel.MemberId))
+                throw new NotFoundException($"Member with id {loanModel.MemberId} does not exist");
+
         var activeLoans = await _loanRepository.GetAllLoans();
-        if (activeLoans.Any(l => l.BookId == loanModel.BookId && l.ReturnDate == null))
-            throw new InvalidOperationException("Book is already loaned");
         
+        if (activeLoans.Any(l => l.BookId == loanModel.BookId && l.ReturnDate == null))
+                throw new DomainException("Book is already loaned");
+
         var loan = _mapper.Map<Loan>(loanModel);
 
         await _loanRepository.AddLoan(loan);
-        await _loanRepository.Save();
-        
-        return _mapper.Map<LoanDto?>(loan);
+        await _loanRepository.SaveChanges();
+
+        return _mapper.Map<LoanDto>(loan);
     }
 
-    public async Task<bool> UpdateLoan(int id, UpdateLoanModel loanModel)
+    public async Task UpdateLoan(int id, UpdateLoanModel loanModel)
     {
-        var existing = await _loanRepository.GetLoanById(id);
-        if(existing == null) return false;
+        var existing = await _loanRepository.GetLoanById(id) ?? 
+                       throw new NotFoundException("Loan not found");
 
-        var book = await _bookRepository.GetBookById(loanModel.BookId) ?? 
-                   throw new ArgumentException($"Book with id {loanModel.BookId} does not exist");
+        if(!(await _bookRepository.CheckId(loanModel.BookId)))
+                throw new NotFoundException($"Book with id {loanModel.BookId} does not exist");
 
-        var member = await _memberRepository.GetMemberById(loanModel.MemberId) ?? 
-                     throw new ArgumentException($"Member with id {loanModel.MemberId} does not exist");
+        if(!(await _memberRepository.CheckId(loanModel.MemberId)))
+                throw new NotFoundException($"Member with id {loanModel.MemberId} does not exist");
         
         var activeLoans = await _loanRepository.GetAllLoans();
         if (activeLoans.Any(l => l.BookId == loanModel.BookId && l.ReturnDate == null))
-            throw new InvalidOperationException("Book is already loaned");
+                throw new DomainException("Book is already loaned");
         
         _mapper.Map(loanModel, existing);
 
         await _loanRepository.UpdateLoan(existing);
-        await _loanRepository.Save();
-        return true;
+        await _loanRepository.SaveChanges();
     }
 
-    public async Task<bool> DeleteLoan(int id)
+    public async Task DeleteLoan(int id)
     {
-        var existing = await _loanRepository.GetLoanById(id);
-        if(existing == null) return false;
+        var existing = await _loanRepository.GetLoanById(id) ??
+                       throw new NotFoundException("Loan not found");
 
-        await _loanRepository.DeleteLoan(id);
-        await _loanRepository.Save();
-        return true;
+        await _loanRepository.DeleteLoan(existing);
+        await _loanRepository.SaveChanges();
     }
 
-    public async Task<bool> ReturnLoan(int id)
+    public async Task ReturnLoan(int id)
     {
-        var loan = await _loanRepository.GetLoanById(id);
-        if(loan == null) return false;
+        var loan = await _loanRepository.GetLoanById(id) ??
+                   throw new NotFoundException("Loan not found");
         
         loan.ReturnDate = DateTime.UtcNow; //for postgres (UTC)
         
         await _loanRepository.UpdateLoan(loan);
-        await _loanRepository.Save();
-        return true;
+        await _loanRepository.SaveChanges();
     }
 }

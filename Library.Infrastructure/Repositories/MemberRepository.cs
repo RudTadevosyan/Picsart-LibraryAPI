@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Repositories;
 
-public class MemberRepository : IMemberRepository
+public class MemberRepository : BaseRepository<Member>, IMemberRepository
 {
-    private readonly LibraryDbContext _context;
-
-    public MemberRepository(LibraryDbContext context)
-    {
-        _context = context;
-    }
+    public MemberRepository(LibraryDbContext context) : base(context) {}
 
     public async Task<Member?> GetMemberById(int id)
     {
@@ -34,26 +29,14 @@ public class MemberRepository : IMemberRepository
         await _context.Members.AddAsync(member);
     }
 
-    public Task<bool> UpdateMember(Member member)
+    public Task UpdateMember(Member member)
     {
         _context.Members.Update(member);
-        return Task.FromResult(true);
+        return Task.CompletedTask;
     }
-
-    public async Task<bool> DeleteMember(int id)
+    public Task DeleteMember(Member member)
     {
-        var member = await _context.Members.FindAsync(id);
-        if (member == null) return false;
-
-        var hasLoan = await _context.Loans.AnyAsync(l => l.MemberId == id && l.ReturnDate == null);
-        if (hasLoan) return false;
-
         _context.Members.Remove(member);
-        return true;
-    }
-
-    public async Task Save()
-    {
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 }

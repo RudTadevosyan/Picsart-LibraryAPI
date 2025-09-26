@@ -26,8 +26,6 @@ public class MembersController: ControllerBase
     public async Task<IActionResult> GetMemberById(int id)
     {
         var member = await _service.GetMemberById(id);
-        if(member == null)
-            return NotFound("Member not found");
         return Ok(member);
     }
 
@@ -38,9 +36,6 @@ public class MembersController: ControllerBase
             return BadRequest(ModelState);
         
         var member = await _service.AddMember(memberModel);
-        if(member == null)
-            return BadRequest("Could not add member");
-        
         return Ok(member);
     }
 
@@ -50,35 +45,21 @@ public class MembersController: ControllerBase
         if(!ModelState.IsValid)
             return BadRequest(ModelState);
         
-        var updated = await _service.UpdateMember(id, memberModel);
-        if(!updated)
-            return BadRequest("Could not update member");
-        return NoContent();
+        await _service.UpdateMember(id, memberModel);
+        return Ok();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteMember(int id)
     {
-        try
-        {
-            var deleted = await _service.DeleteMember(id);
-            if(!deleted)
-                return BadRequest("Could not delete member");
-            return NoContent();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _service.DeleteMember(id);
+        return Ok();
     }
 
     [HttpGet("active_loans/{id:int}")]
     public async Task<IActionResult> GetActiveLoans(int id)
     {
         var activeLoans = await _service.HasActiveLoans(id);
-        if(activeLoans == null) 
-            return BadRequest("Member not found");
-        
         return Ok(new {MemberId = id, ActiveLoans = activeLoans});
     }
 }

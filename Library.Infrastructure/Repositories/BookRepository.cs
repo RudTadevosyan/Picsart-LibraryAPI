@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Repositories;
 
-public class BookRepository : IBookRepository
+public class BookRepository : BaseRepository<Book>,IBookRepository
 {
-    private readonly LibraryDbContext _context;
-
-    public BookRepository(LibraryDbContext context)
-    {
-        _context = context;
-    }
+    public BookRepository(LibraryDbContext context) : base(context) {}
 
     public async Task<Book?> GetBookById(int id)
     {
@@ -38,51 +33,15 @@ public class BookRepository : IBookRepository
         await _context.Books.AddAsync(book);
     }
 
-    public Task<bool> UpdateBook(Book book)
+    public Task UpdateBook(Book book)
     {
         _context.Books.Update(book);
         return Task.FromResult(true);
     }
 
-    public async Task<bool> DeleteBook(int id)
+    public Task DeleteBook(Book book)
     {
-        var book = await _context.Books.FindAsync(id);
-        if (book == null) return false;
-
         _context.Books.Remove(book);
-        return true;
-    }
-
-    public async Task AddGenreToBook(int bookId, int genreId)
-    {
-        var book = await _context.Books
-            .Include(b => b.Genres)
-            .FirstOrDefaultAsync(b => b.BookId == bookId);
-
-        var genre = await _context.Genres.FindAsync(genreId);
-
-        if (book != null && genre != null && !book.Genres.Contains(genre))
-        {
-            book.Genres.Add(genre);
-        }
-    }
-
-    public async Task RemoveGenreFromBook(int bookId, int genreId)
-    {
-        var book = await _context.Books
-            .Include(b => b.Genres)
-            .FirstOrDefaultAsync(b => b.BookId == bookId);
-
-        var genre = await _context.Genres.FindAsync(genreId);
-
-        if (book != null && genre != null && book.Genres.Contains(genre))
-        {
-            book.Genres.Remove(genre);
-        }
-    }
-
-    public async Task Save()
-    {
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 }

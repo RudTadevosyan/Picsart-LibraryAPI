@@ -21,6 +21,7 @@ obj/
 Migrations/
 
 # App settings (local secrets)
+appsettings.json
 appsettings.*.json
 secrets.json
 .env

@@ -2,12 +2,11 @@
 
 namespace Library.Domain.Interfaces;
 
-public interface IBookDetailRepository
+public interface IBookDetailRepository : IRepository<BookDetail>
 {
     Task<BookDetail?> GetBookDetailById(int bookDetailId);
     Task<IEnumerable<BookDetail>> GetAllBookDetails();
     Task AddBookDetail(BookDetail bookDetail);
-    Task<bool> UpdateBookDetail(BookDetail bookDetail);
-    Task<bool> DeleteBookDetail(int id);
-    Task Save();
+    Task UpdateBookDetail(BookDetail bookDetail);
+    Task DeleteBookDetail(BookDetail bookDetail);
 }

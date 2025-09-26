@@ -4,15 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure.Repositories;
 
-public class LoanRepository : ILoanRepository
+public class LoanRepository : BaseRepository<Loan>,ILoanRepository
 {
-    private readonly LibraryDbContext _context;
-
-    public LoanRepository(LibraryDbContext context)
-    {
-        _context = context;
-    }
-
+    public LoanRepository(LibraryDbContext context) : base(context) {}
     public async Task<Loan?> GetLoanById(int id)
     {
         return await _context.Loans
@@ -35,23 +29,15 @@ public class LoanRepository : ILoanRepository
         await _context.Loans.AddAsync(loan);
     }
 
-    public Task<bool> UpdateLoan(Loan loan)
+    public Task UpdateLoan(Loan loan)
     {
         _context.Loans.Update(loan);
-        return Task.FromResult(true);
+        return Task.CompletedTask;
     }
 
-    public async Task<bool> DeleteLoan(int id)
+    public Task DeleteLoan(Loan loan)
     {
-        var loan = await _context.Loans.FindAsync(id);
-        if (loan == null) return false;
-
         _context.Loans.Remove(loan);
-        return true;
-    }
-
-    public async Task Save()
-    {
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 }

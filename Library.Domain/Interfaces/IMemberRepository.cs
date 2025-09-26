@@ -2,12 +2,11 @@
 
 namespace Library.Domain.Interfaces;
 
-public interface IMemberRepository
+public interface IMemberRepository : IRepository<Member>
 {
     Task<Member?> GetMemberById(int id);
     Task<IEnumerable<Member>> GetAllMembers();
     Task AddMember(Member member);
-    Task<bool> UpdateMember(Member member);
-    Task<bool> DeleteMember(int id);
-    Task Save();
+    Task UpdateMember(Member member);
+    Task DeleteMember(Member member);
 }

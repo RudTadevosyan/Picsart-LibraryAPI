@@ -28,9 +28,6 @@ public class AuthorsController : ControllerBase
     public async Task<IActionResult> GetAuthorById(int id)
     {
         var author = await _service.GetAuthorById(id);
-        if(author == null) 
-            return NotFound("Author not found");
-        
         return Ok(author);
     }
 
@@ -47,10 +44,6 @@ public class AuthorsController : ControllerBase
         if(!ModelState.IsValid) return BadRequest(ModelState);
         
         var author = await _service.AddAuthor(authorModel);
-        
-        if(author == null) 
-            return BadRequest("Could not create author");
-        
         return Ok(author);
     }
 
@@ -60,28 +53,15 @@ public class AuthorsController : ControllerBase
         if(!ModelState.IsValid) 
             return BadRequest(ModelState);
         
-        
-        var updated = await _service.UpdateAuthor(id, authorModel);
-        if(!updated) 
-            return NotFound("Author not found");
-        
-        return NoContent();
+        await _service.UpdateAuthor(id, authorModel);
+        return Ok();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteAuthor(int id)
     {
-        try
-        {
-            var deleted = await _service.DeleteAuthor(id);
-            if(!deleted)
-                return NotFound("Author not found");
-            return NoContent();
-        }
-        catch(InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        await _service.DeleteAuthor(id);
+        return Ok();
     } 
     
 }

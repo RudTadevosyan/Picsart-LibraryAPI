@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Library.Application.Helpers;
 using Library.Application.Interfaces;
+using Library.Domain.CustomExceptions;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
 using Library.Shared.CreationModels;
@@ -19,9 +19,10 @@ public class MemberService : IMemberService
         _mapper = mapper;
     }
 
-    public async Task<MemberDto?> GetMemberById(int id)
+    public async Task<MemberDto> GetMemberById(int id)
     {
-        var member = await _repository.GetMemberById(id);
+        var member = await _repository.GetMemberById(id) ??
+                     throw new NotFoundException("Member not found");
         return _mapper.Map<MemberDto>(member);
     }
 
@@ -31,45 +32,43 @@ public class MemberService : IMemberService
         return _mapper.Map<IEnumerable<MemberDto>>(members);
     }
 
-    public async Task<MemberDto?> AddMember(CreateMemberModel memberModel)
+    public async Task<MemberDto> AddMember(CreateMemberModel memberModel)
     {
         var member = _mapper.Map<Member>(memberModel);
 
         await _repository.AddMember(member);
-        await _repository.Save();
+        await _repository.SaveChanges();
         
         return _mapper.Map<MemberDto>(member);
     }
 
-    public async Task<bool> UpdateMember(int id, UpdateMemberModel updateModel)
+    public async Task UpdateMember(int id, UpdateMemberModel updateModel)
     {
-        var existing = await _repository.GetMemberById(id);
-        if (existing == null) return false;
+        var existing = await _repository.GetMemberById(id) ??
+                       throw new NotFoundException("Member not found");
 
         _mapper.Map(updateModel, existing);
 
         await _repository.UpdateMember(existing);
-        await _repository.Save();
-        return true;
+        await _repository.SaveChanges();
     }
 
-    public async Task<bool> DeleteMember(int id)
+    public async Task DeleteMember(int id)
     {
-        var existing = await _repository.GetMemberById(id);
-        if(existing == null) return false;
+        var existing = await _repository.GetMemberById(id) ??
+                       throw new NotFoundException("Member not found");
 
         if (existing.Loans.Any(l => l.ReturnDate == null))
-            throw new InvalidOperationException("Member has active loans");
+            throw new DomainException("Member has active loans");
 
-        await _repository.DeleteMember(id);
-        await _repository.Save();
-        return true;
+        await _repository.DeleteMember(existing);
+        await _repository.SaveChanges();
     }
 
-    public async Task<bool?> HasActiveLoans(int memberId)
+    public async Task<bool> HasActiveLoans(int memberId)
     {
-        var member = await _repository.GetMemberById(memberId);
-        if (member == null) return null;
+        var member = await _repository.GetMemberById(memberId) ??
+                     throw new NotFoundException("Member not found");
 
         return member.Loans.Any(l => l.MemberId == memberId && l.ReturnDate == null);
     }
