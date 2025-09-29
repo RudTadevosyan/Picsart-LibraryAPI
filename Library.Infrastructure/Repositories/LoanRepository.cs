@@ -13,6 +13,7 @@ public class LoanRepository : BaseRepository<Loan>,ILoanRepository
             .Include(l => l.Book)
             .ThenInclude(b => b.BookDetail)
             .Include(l => l.Member)
+            .AsNoTracking()
             .FirstOrDefaultAsync(l => l.LoanId == id);
     }
 
@@ -21,6 +22,7 @@ public class LoanRepository : BaseRepository<Loan>,ILoanRepository
         return await _context.Loans
             .Include(l => l.Book)
             .Include(l => l.Member)
+            .AsNoTracking()
             .ToListAsync();
     }
 

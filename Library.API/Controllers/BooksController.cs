@@ -1,6 +1,9 @@
 ﻿using Library.Application.Interfaces;
 using Library.Shared.CreationModels;
+using Library.Shared.DTOs.FilterDtos;
 using Library.Shared.UpdateModels;
+using Library.Shared.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Controllers;
@@ -23,6 +26,19 @@ public class BooksController: ControllerBase
         return Ok(await _service.GetAllBooks());
     }
 
+    [HttpGet("Specification")]
+    public async Task<IActionResult> GetAllBooksBySpec([FromQuery] BookFilterDto filter)
+    {
+        var validator = new BookFilterDtoValidator();
+        var validationResult = await validator.ValidateAsync(filter);
+        
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+        
+        var books = await _service.GetAllBooksBySpec(filter);
+        return Ok(books);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetBookById(int id)
     {
@@ -31,6 +47,7 @@ public class BooksController: ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddBook([FromBody] CreateBookModel bookModel)
     {
         if(!ModelState.IsValid) 
@@ -78,7 +95,7 @@ public class BooksController: ControllerBase
         return Ok(new {BookId = id, Availability = availability});
     }
 
-    [HttpPost("details/{bookId:int}")]
+    [HttpPost("{bookId:int}/details")]
     public async Task<IActionResult> AddBookDetails(int bookId, [FromBody] CreateBookDetailModel bookDetailModel)
     {
         if(!ModelState.IsValid)
@@ -88,7 +105,7 @@ public class BooksController: ControllerBase
         return Ok(detail);
     }
 
-    [HttpPut("details")]
+    [HttpPut("{bookId:int}/details")]
     public async Task<IActionResult> UpdateBookDetails([FromBody] UpdateBookDetailModel bookDetailModel)
     {
         if(!ModelState.IsValid)
@@ -98,7 +115,7 @@ public class BooksController: ControllerBase
         return Ok();
     }
 
-    [HttpDelete("details/{detailId:int}")]
+    [HttpDelete("{bookId:int}/details")]
     public async Task<IActionResult> DeleteBookDetails(int detailId)
     {
         await _service.DeleteBookDetail(detailId);

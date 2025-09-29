@@ -1,9 +1,11 @@
 ﻿using Library.Domain.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure;
 
-public class LibraryDbContext : DbContext
+public class LibraryDbContext : IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>
 {
     public LibraryDbContext(DbContextOptions<LibraryDbContext> options):base(options){}
     

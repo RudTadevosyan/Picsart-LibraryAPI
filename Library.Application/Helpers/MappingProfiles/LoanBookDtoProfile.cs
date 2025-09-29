@@ -16,7 +16,7 @@ namespace Library.Application.Helpers.MappingProfiles
                 .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.Book.AuthorId))
                 .ForMember(dest => dest.BookDetail, opt => opt.MapFrom(src => src.Book.BookDetail))
                 .ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.Book.Genres))
-                .ForMember(dest => dest.LoanId, opt => opt.MapFrom(src => src.LoanId));
+                .ForMember(dest => dest.ActiveLoanId, opt => opt.MapFrom(src => src.LoanId));
         }
     }
 }

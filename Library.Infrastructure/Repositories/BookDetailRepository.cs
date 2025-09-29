@@ -13,6 +13,7 @@ public class BookDetailRepository : BaseRepository<BookDetail> ,IBookDetailRepos
         return await _context.BookDetails
             .Include(d => d.Book)
             .ThenInclude(b => b.Author)
+            .AsNoTracking()
             .FirstOrDefaultAsync(d => d.BookDetailsId == id);
     }
 
@@ -21,6 +22,7 @@ public class BookDetailRepository : BaseRepository<BookDetail> ,IBookDetailRepos
         return await _context.BookDetails
             .Include(d => d.Book)
             .ThenInclude(b => b.Author)
+            .AsNoTracking()
             .ToListAsync();
     }
 

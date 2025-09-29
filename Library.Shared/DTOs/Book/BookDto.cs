@@ -10,6 +10,6 @@ public class BookDto
     public ICollection<GenreDto> Genres { get; set; } = new List<GenreDto>();
     public BookDetailDto? BookDetail { get; set; }
     
-    public int? LoanId { get; set; }
+    public int? ActiveLoanId { get; set; }
     
 }

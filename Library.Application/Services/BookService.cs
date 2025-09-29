@@ -3,8 +3,10 @@ using Library.Application.Interfaces;
 using Library.Domain.CustomExceptions;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
+using Library.Domain.Specifications;
 using Library.Shared.CreationModels;
 using Library.Shared.DTOs;
+using Library.Shared.DTOs.FilterDtos;
 using Library.Shared.UpdateModels;
 
 namespace Library.Application.Services;
@@ -29,8 +31,7 @@ public class BookService: IBookService
 
     public async Task<BookDto> GetBookById(int id)
     {
-        var book = await _bookRepository.GetBookById(id);
-        if(book == null)
+        var book = await _bookRepository.GetBookById(id) ??
             throw new NotFoundException("Book not found");
         return _mapper.Map<BookDto>(book);
     }
@@ -38,6 +39,45 @@ public class BookService: IBookService
     public async Task<IEnumerable<BookDto>> GetAllBooks()
     {
         var books = await _bookRepository.GetAllBooks();
+        return _mapper.Map<IEnumerable<BookDto>>(books);
+    }
+
+    public async Task<IEnumerable<BookDto>> GetAllBooksBySpec(BookFilterDto filter)
+    {
+        //Specification so we can assign AndSpecification to it
+        Specification<Book> spec = new DefaultSpecification<Book>();
+        
+        if(!string.IsNullOrWhiteSpace(filter.BookTitle))
+            spec = spec.And(new BookByTitleSpec(filter.BookTitle));
+        
+        if(!string.IsNullOrWhiteSpace(filter.AuthorName))
+            spec = spec.And(new BookByAuthorSpec(filter.AuthorName));
+        
+        if(!string.IsNullOrWhiteSpace(filter.Genre))
+            spec = spec.And(new BookByGenreSpec(filter.Genre));
+        
+        if(filter.PublishedAfter.HasValue)
+            spec = spec.And(new BookByPublishedAfterSpec(filter.PublishedAfter));
+        
+        if(filter.IsAvailable.HasValue)
+            spec = spec.And(new BookByAvailabilitySpec(filter.IsAvailable));
+        
+        var books = await _bookRepository.GetAllBooksBySpec(spec);
+
+        //Sorting
+        books = filter.SortBy switch 
+        {
+            "TitleAsc" => books.OrderBy(b => b.BookTitle),
+            "TitleDesc" => books.OrderByDescending(b => b.BookTitle),
+            "PublishDateAsc" => books.OrderBy(b => b.BookPublishDate),
+            "PublishDateDesc" => books.OrderByDescending(b => b.BookPublishDate),
+            _ => books
+        };
+        
+        //Paging
+        books = books.Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize);
+        
         return _mapper.Map<IEnumerable<BookDto>>(books);
     }
 
@@ -132,6 +172,9 @@ public class BookService: IBookService
         var book = await _bookRepository.GetBookById(bookId) ??
                    throw new NotFoundException("Book not found");
 
+        if(book.BookDetail != null)
+            throw new DomainException("Book Detail already exists");
+        
         var bd = _mapper.Map<BookDetail>(bookDetailModel);
         
         if(bd.BookPages <= 0)

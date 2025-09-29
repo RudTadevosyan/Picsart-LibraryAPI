@@ -17,6 +17,7 @@ public class AuthorRepository : BaseRepository<Author>, IAuthorRepository
             .ThenInclude(b => b.Genres)
             .Include(a => a.Books)
             .ThenInclude(b => b.Loans)
+            .AsNoTracking()
             .FirstOrDefaultAsync(a => a.AuthorId == id);
     }
 
@@ -29,6 +30,7 @@ public class AuthorRepository : BaseRepository<Author>, IAuthorRepository
             .ThenInclude(b => b.Genres)
             .Include(a => a.Books)
             .ThenInclude(b => b.Loans)
+            .AsNoTracking()
             .ToListAsync();
     }
 
@@ -42,6 +44,7 @@ public class AuthorRepository : BaseRepository<Author>, IAuthorRepository
             .ThenInclude(b => b.Genres)
             .Include(a => a.Books)
             .ThenInclude(b => b.Loans)
+            .AsNoTracking()
             .ToListAsync();
     }
 

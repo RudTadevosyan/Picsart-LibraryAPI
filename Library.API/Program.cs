@@ -1,29 +1,88 @@
+using System.Text;
+using FluentValidation;
 using Library.Infrastructure;
+using Library.Shared.DTOs.Auth;
+using Library.Shared.Validators;
 using LibraryAPI.Extensions;
 using LibraryAPI.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace LibraryAPI;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+
         //DB
         var conn = builder.Configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<LibraryDbContext>
             (options => options.UseNpgsql(conn, x => x.MigrationsAssembly("Library.Infrastructure")));
-        
+
         //DI
         builder.Services.AddLibraryDependencies();
 
-        
+        builder.Services.AddIdentity<IdentityUser<int>, IdentityRole<int>>()
+            .AddEntityFrameworkStores<LibraryDbContext>()
+            .AddDefaultTokenProviders();
+
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"], 
+                    ValidAudience = builder.Configuration["Jwt:Audience"], 
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                };
+            });
+
+        // Validators
+        builder.Services.AddValidatorsFromAssemblyContaining<BookFilterDtoValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
+        builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
+
+
         // Add services to the container.
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        
+        builder.Services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Library API", Version = "v1" });
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "Enter: Bearer {token}",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT"
+            });
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] { }
+                }
+            });
+        });
 
         var app = builder.Build();
 
@@ -33,14 +92,27 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        
+        // Role seeding in db
+        using (var serviceScope = app.Services.CreateScope())
+        {
+            var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+            string[] roles = ["Admin", "Member"];
+            foreach (var role in roles)
+            {
+                if(!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole<int>(role));
+            }
+        }
 
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseHttpsRedirection();
+        
+        app.UseAuthentication();
         app.UseAuthorization();
-
 
         app.MapControllers();
 
-        app.Run();
+        await app.RunAsync();
     }
 }

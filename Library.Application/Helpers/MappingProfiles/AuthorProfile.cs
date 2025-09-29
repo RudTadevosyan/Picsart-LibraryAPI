@@ -13,7 +13,7 @@ public class AuthorProfile: Profile
         CreateMap<Author, AuthorDto>()
             .ForMember(dest => dest.Books,
                 opt => 
-                    opt.MapFrom(src => src.Books ?? new List<Book>()));
+                    opt.MapFrom(src => src.Books));
 
         CreateMap<CreateAuthorModel, Author>();
         

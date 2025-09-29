@@ -16,6 +16,5 @@ public class BookDetail
     
     [Required, MaxLength(50)]
     public string BookLanguage { get; set; } = string.Empty;
-    
-    public string? BookDescription { get; set; } = string.Empty;
+    public string? BookDescription { get; set; }
 }

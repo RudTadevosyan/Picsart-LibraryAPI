@@ -15,7 +15,7 @@ public class BookProfile: Profile
                 opt.MapFrom(src => src.BookDetail))
             .ForMember(dest => dest.Genres, opt =>
                 opt.MapFrom(src => src.Genres))
-            .ForMember(dest => dest.LoanId, opt => opt.MapFrom(src =>
+            .ForMember(dest => dest.ActiveLoanId, opt => opt.MapFrom(src =>
                 src.Loans.LastOrDefault(l => l.ReturnDate == null)!.LoanId));
 
 

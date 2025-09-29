@@ -13,6 +13,7 @@ public class GenreRepository : BaseRepository<Genre>,IGenreRepository
         return await _context.Genres
             .Include(g => g.Books)
             .ThenInclude(b => b.BookDetail)
+            .AsNoTracking()
             .FirstOrDefaultAsync(g => g.GenreId == id);
     }
 
@@ -20,6 +21,7 @@ public class GenreRepository : BaseRepository<Genre>,IGenreRepository
     {
         return await _context.Genres
             .Include(g => g.Books)
+            .AsNoTracking()
             .ToListAsync();
     }
 

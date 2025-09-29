@@ -24,6 +24,7 @@ public static class ServiceExtensions
         services.AddScoped<IGenreService, GenreService>();
         services.AddScoped<ILoanService, LoanService>();
         services.AddScoped<IMemberService, MemberService>();
+        services.AddScoped<IAuthService, AuthService>();
         
         //AutoMapper
         

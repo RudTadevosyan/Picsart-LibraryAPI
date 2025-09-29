@@ -13,6 +13,7 @@ public class MemberRepository : BaseRepository<Member>, IMemberRepository
         return await _context.Members
             .Include(m => m.Loans)
             .ThenInclude(l => l.Book)
+            .AsNoTracking()
             .FirstOrDefaultAsync(m => m.MemberId == id);
     }
 
@@ -21,6 +22,7 @@ public class MemberRepository : BaseRepository<Member>, IMemberRepository
         return await _context.Members
             .Include(m => m.Loans)
             .ThenInclude(l => l.Book)
+            .AsNoTracking()
             .ToListAsync();
     }
 
