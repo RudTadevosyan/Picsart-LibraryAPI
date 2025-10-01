@@ -1,5 +1,4 @@
 ﻿using Library.Shared.DTOs.Auth;
-using Microsoft.AspNetCore.Identity;
 
 namespace Library.Application.Interfaces;
 

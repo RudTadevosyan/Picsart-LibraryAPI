@@ -1,6 +1,7 @@
-﻿using Library.Shared.DTOs;
+﻿using Library.Shared.DTOs.BookDetail;
+using Library.Shared.DTOs.Genre;
 
-namespace Library.Shared.CreationModels;
+namespace Library.Shared.DTOs.Book;
 
 public class CreateBookModel
 {

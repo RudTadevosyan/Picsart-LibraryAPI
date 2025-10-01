@@ -1,4 +1,4 @@
-﻿namespace Library.Shared.DTOs;
+﻿namespace Library.Shared.DTOs.Genre;
 
 public class GenreDto
 {

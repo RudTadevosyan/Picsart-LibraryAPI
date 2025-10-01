@@ -1,4 +1,4 @@
-﻿namespace Library.Shared.CreationModels;
+﻿namespace Library.Shared.DTOs.Genre;
 
 public class CreateGenreModel
 {

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Library.Shared.DTOs.FilterDtos;
+using Library.Shared.DTOs.Book;
 
 namespace Library.Shared.Validators;
 

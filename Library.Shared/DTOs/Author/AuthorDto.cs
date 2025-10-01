@@ -1,4 +1,6 @@
-﻿namespace Library.Shared.DTOs;
+﻿using Library.Shared.DTOs.Book;
+
+namespace Library.Shared.DTOs.Author;
 
 public class AuthorDto
 {

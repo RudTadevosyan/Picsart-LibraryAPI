@@ -1,14 +1,11 @@
 ﻿using Library.Domain.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Library.Infrastructure;
 
-public class LibraryDbContext : IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>
+public class LibraryDbContext : DbContext
 {
-    public LibraryDbContext(DbContextOptions<LibraryDbContext> options):base(options){}
-    
+    public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options) { }
     public DbSet<Book> Books { get; set; }
     public DbSet<Author> Authors { get; set; }
     public DbSet<Genre> Genres { get; set; }

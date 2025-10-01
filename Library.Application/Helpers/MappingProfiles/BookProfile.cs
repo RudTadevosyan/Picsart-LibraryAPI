@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Library.Domain.Models;
-using Library.Shared.CreationModels;
-using Library.Shared.DTOs;
-using Library.Shared.UpdateModels;
+using Library.Shared.DTOs.Book;
 
 namespace Library.Application.Helpers.MappingProfiles;
 
@@ -28,7 +26,7 @@ public class BookProfile: Profile
         CreateMap<UpdateBookModel, Book>()
             .ForMember(dest => dest.BookTitle, opt =>
                 opt.Condition((src, dest, srcMember) => 
-                    srcMember != null && !string.IsNullOrWhiteSpace((string)srcMember)));
+                    srcMember != null && !string.IsNullOrWhiteSpace(srcMember)));
 
     }
 }

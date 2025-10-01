@@ -1,4 +1,4 @@
-﻿namespace Library.Shared.DTOs;
+﻿namespace Library.Shared.DTOs.BookDetail;
 public class BookDetailDto
 {
     public int BookDetailsId { get; set; }

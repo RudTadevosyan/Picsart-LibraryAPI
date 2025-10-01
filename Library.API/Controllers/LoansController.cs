@@ -1,6 +1,5 @@
 ﻿using Library.Application.Interfaces;
-using Library.Shared.CreationModels;
-using Library.Shared.UpdateModels;
+using Library.Shared.DTOs.Loan;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +7,7 @@ namespace LibraryAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class LoansController: ControllerBase
 {
     private readonly ILoanService _service;
@@ -31,7 +31,6 @@ public class LoansController: ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Member")]
     public async Task<IActionResult> AddLoan([FromBody] CreateLoanModel loanModel)
     {
         if(!ModelState.IsValid)

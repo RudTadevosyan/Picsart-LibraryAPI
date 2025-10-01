@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Library.Domain.Models;
-using Library.Shared.CreationModels;
-using Library.Shared.DTOs;
-using Library.Shared.UpdateModels;
+using Library.Shared.DTOs.Genre;
 
 namespace Library.Application.Helpers.MappingProfiles;
 

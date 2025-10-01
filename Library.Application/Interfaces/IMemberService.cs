@@ -1,6 +1,4 @@
-﻿using Library.Shared.CreationModels;
-using Library.Shared.DTOs;
-using Library.Shared.UpdateModels;
+﻿using Library.Shared.DTOs.Member;
 
 namespace Library.Application.Interfaces
 {

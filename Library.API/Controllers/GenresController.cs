@@ -1,12 +1,13 @@
 ﻿using Library.Application.Interfaces;
-using Library.Shared.CreationModels;
-using Library.Shared.UpdateModels;
+using Library.Shared.DTOs.Genre;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class GenresController: ControllerBase
 {
     private readonly IGenreService _service;

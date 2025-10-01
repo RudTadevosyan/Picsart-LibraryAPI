@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Library.Shared.DTOs.FilterDtos;
+namespace Library.Shared.DTOs.Book;
 
 public class BookFilterDto
 {

@@ -1,4 +1,4 @@
-﻿namespace Library.Shared.UpdateModels
+﻿namespace Library.Shared.DTOs.Author
 {
     public class UpdateAuthorModel
     {

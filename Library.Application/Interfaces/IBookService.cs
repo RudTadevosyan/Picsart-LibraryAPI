@@ -1,9 +1,5 @@
-﻿using Library.Domain.Models;
-using Library.Domain.Specifications;
-using Library.Shared.CreationModels;
-using Library.Shared.DTOs;
-using Library.Shared.DTOs.FilterDtos;
-using Library.Shared.UpdateModels;
+﻿using Library.Shared.DTOs.Book;
+using Library.Shared.DTOs.BookDetail;
 
 namespace Library.Application.Interfaces;
 

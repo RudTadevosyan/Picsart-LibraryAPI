@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Library.Domain.Models;
-using Library.Shared.DTOs;
+using Library.Shared.DTOs.Book;
 
 namespace Library.Application.Helpers.MappingProfiles
 {

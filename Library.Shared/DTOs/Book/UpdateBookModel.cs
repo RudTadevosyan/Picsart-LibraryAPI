@@ -1,4 +1,4 @@
-﻿namespace Library.Shared.UpdateModels
+﻿namespace Library.Shared.DTOs.Book
 {
     public class UpdateBookModel
     {

@@ -1,4 +1,4 @@
-﻿namespace Library.Shared.CreationModels;
+﻿namespace Library.Shared.DTOs.Member;
 
 public class CreateMemberModel
 {

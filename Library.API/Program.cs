@@ -1,7 +1,6 @@
 using System.Text;
 using FluentValidation;
 using Library.Infrastructure;
-using Library.Shared.DTOs.Auth;
 using Library.Shared.Validators;
 using LibraryAPI.Extensions;
 using LibraryAPI.Middlewares;
@@ -20,18 +19,27 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         //DB
-        var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+        var connLibraryDb = builder.Configuration.GetConnectionString("LibraryConnection");
         builder.Services.AddDbContext<LibraryDbContext>
-            (options => options.UseNpgsql(conn, x => x.MigrationsAssembly("Library.Infrastructure")));
+            (options => options.UseNpgsql(connLibraryDb, x => x.MigrationsAssembly("Library.Infrastructure")));
 
+        var connAuthDb = builder.Configuration.GetConnectionString("AuthConnection");
+        builder.Services.AddDbContext<AuthDbContext>
+            (options => options.UseNpgsql(connAuthDb, x => x.MigrationsAssembly("Library.Infrastructure")));
+        
         //DI
         builder.Services.AddLibraryDependencies();
 
+        //Asp Identity for Auth
         builder.Services.AddIdentity<IdentityUser<int>, IdentityRole<int>>()
-            .AddEntityFrameworkStores<LibraryDbContext>()
+            .AddEntityFrameworkStores<AuthDbContext>()
             .AddDefaultTokenProviders();
 
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -47,6 +55,8 @@ public class Program
             });
 
         // Validators
+        // (in the future in Add.Controllers I will register all validators
+        // so, I will not need a lot of DIs and validation will be auto)
         builder.Services.AddValidatorsFromAssemblyContaining<BookFilterDtoValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<LoginValidator>();
         builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
@@ -62,7 +72,7 @@ public class Program
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
-                Description = "Enter: Bearer {token}",
+                Description = "Enter Your Token",
                 Name = "Authorization",
                 Type = SecuritySchemeType.Http,
                 Scheme = "Bearer",

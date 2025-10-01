@@ -1,7 +1,6 @@
 ﻿using Library.Application.Interfaces;
-using Library.Shared.CreationModels;
-using Library.Shared.DTOs.FilterDtos;
-using Library.Shared.UpdateModels;
+using Library.Shared.DTOs.Book;
+using Library.Shared.DTOs.BookDetail;
 using Library.Shared.Validators;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ namespace LibraryAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-
+[Authorize]
 public class BooksController: ControllerBase
 {
     private readonly IBookService _service;
@@ -47,7 +46,6 @@ public class BooksController: ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddBook([FromBody] CreateBookModel bookModel)
     {
         if(!ModelState.IsValid) 

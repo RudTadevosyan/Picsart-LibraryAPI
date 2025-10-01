@@ -3,9 +3,7 @@ using Library.Application.Interfaces;
 using Library.Domain.CustomExceptions;
 using Library.Domain.Interfaces;
 using Library.Domain.Models;
-using Library.Shared.CreationModels;
-using Library.Shared.DTOs;
-using Library.Shared.UpdateModels;
+using Library.Shared.DTOs.Author;
 
 namespace Library.Application.Services;
 

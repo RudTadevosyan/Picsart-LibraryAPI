@@ -1,12 +1,13 @@
 ﻿using Library.Application.Interfaces;
-using Library.Shared.CreationModels;
-using Library.Shared.UpdateModels;
+using Library.Shared.DTOs.Member;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class MembersController: ControllerBase
 {
     private readonly IMemberService _service;

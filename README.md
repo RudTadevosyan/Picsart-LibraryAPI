@@ -10,8 +10,9 @@ LibraryAPI is a RESTful Web API built with ASP.NET Core 8.0, designed to manage 
 
 ## Project Structure
 - **LibraryAPI**: Main Web API project with controllers, middleware and configuration.
-- **Library.Application**: Business logic and services
+- **Library.Application**: Business logic and services with automapper
 - **Library.Infrastructure**: Entity Framework Core, database migrations and repository implementation
+- **Library.Domain**: Entities, interfaces, specifications and custom exceptions
 - **Library.Shared**: DTOs, models, and validators.
 
 ## Prerequisites
@@ -26,13 +27,34 @@ LibraryAPI is a RESTful Web API built with ASP.NET Core 8.0, designed to manage 
 ```bash
 git clone https://github.com/yourusername/LibraryAPI.git
 cd LibraryAPI
+```
+
+### 2. Configure appsettings.json
+```bash
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+
+  "AllowedHosts": "*",
 
 "Jwt": {
     "Key": "Change_ThisIsASecretKeyForJwtTokenGeneration1234567890",
-    "Issuer": "https://localhost:????",
-    "Audience": "https://localhost:????"
-  }
+    "Issuer": "https://localhost:7069",
+    "Audience": "https://localhost:7069"
+    },
 
 "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=LibraryDb;Username=postgres;Password=yourpassword"
-  },
+    "LibraryConnection": "Host=localhost;Port=5432;Database=LibraryDb;Username=postgres;Password=yourpassword",
+    "AuthConnection": "Host=localhost;Port=5432;Database=AuthDb;Username=postgres;Password=yourpassword"
+  }
+}
+
+```
+### 3. Configure Databases
+```bash
+dotnet ef migrations add InitialCreate --project /Library.Infrastructure/ --startup-project /Library.API/
+dotnet ef database update --project /Library.Infrastructure/ --startup-project /Library.API/

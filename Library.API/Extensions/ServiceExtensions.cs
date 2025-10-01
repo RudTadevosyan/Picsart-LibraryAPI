@@ -27,13 +27,13 @@ public static class ServiceExtensions
         services.AddScoped<IAuthService, AuthService>();
         
         //AutoMapper
-        
         services.AddAutoMapper(typeof(AuthorProfile),
-            typeof(BookProfile),
-            typeof(GenreProfile),
-            typeof(LoanProfile),
-            typeof(MemberProfile),
-            typeof(BookDetailProfile),
-            typeof(LoanToBookDtoProfile));
+        typeof(BookProfile),
+        typeof(GenreProfile),
+        typeof(LoanProfile),
+        typeof(MemberProfile),
+        typeof(BookDetailProfile),
+        typeof(LoanToBookDtoProfile));
+        
     }
 }
